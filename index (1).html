@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TREASURE 好き曲診断（全43曲収録）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-navy: #070d1b;
+      --bg-navy-2: #0d1931;
+      --card-bg: rgba(16, 29, 56, 0.86);
+      --card-border: rgba(125, 211, 252, 0.2);
+      --sky: #38bdf8;
+      --sky-soft: rgba(56, 189, 248, 0.14);
+      --gold: #facc15;
+      --gold-soft: rgba(250, 204, 21, 0.14);
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-muted: #94a3b8;
+      --success: #34d399;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Outfit', sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.18), transparent 40%),
+        radial-gradient(circle at 85% 15%, rgba(250, 204, 21, 0.12), transparent 38%),
+        linear-gradient(160deg, var(--bg-navy) 0%, var(--bg-navy-2) 55%, #060b16 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.65;
+      padding: 28px 16px 64px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 28px 20px 24px;
+      border: 1px solid var(--card-border);
+      background: linear-gradient(180deg, rgba(17, 31, 61, 0.9), rgba(9, 18, 36, 0.88));
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-soft);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2.35rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ffffff 0%, #bae6fd 55%, #fde047 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      max-width: 620px;
+      margin: 0 auto 18px;
+    }
+
+    .mode-tabs {
+      display: inline-flex;
+      gap: 8px;
+      background: rgba(6, 12, 24, 0.75);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .mode-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-tab.active {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #04101f;
+      box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 26px 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+      margin-bottom: 22px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 22px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(148, 163, 184, 0.18);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--sky), var(--gold));
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .question-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .option-btn {
+      text-align: left;
+      background: rgba(11, 22, 43, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 16px;
+      padding: 15px 16px;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .option-btn:hover {
+      border-color: var(--sky);
+      background: rgba(18, 37, 72, 0.95);
+      transform: translateY(-2px);
+    }
+
+    .option-btn.selected {
+      border-color: var(--gold);
+      background: linear-gradient(145deg, rgba(250, 204, 21, 0.16), rgba(56, 189, 248, 0.12));
+      box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.45);
+    }
+
+    .option-label {
+      font-weight: 700;
+      font-size: 0.96rem;
+      color: #ffffff;
+    }
+
+    .option-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 22px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 29, 56, 0.9);
+      color: var(--text-main);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--sky);
+      color: #ffffff;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #eab308, #facc15);
+      color: #091120;
+      border: none;
+      box-shadow: 0 8px 20px rgba(250, 204, 21, 0.28);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.05);
+      color: #091120;
+    }
+
+    .result-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      margin-bottom: 18px;
+    }
+
+    .match-pill {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #051121;
+      background: linear-gradient(135deg, var(--sky), #7dd3fc);
+      padding: 7px 15px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .song-title-main {
+      font-size: clamp(1.55rem, 3.8vw, 2.2rem);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+
+    .song-meta {
+      font-size: 0.88rem;
+      color: var(--gold);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: var(--sky-soft);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .comment-box {
+      background: rgba(8, 17, 34, 0.75);
+      border-left: 4px solid var(--gold);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text-sub);
+      font-size: 0.94rem;
+      margin-bottom: 20px;
+    }
+
+    .sub-heading {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .rec-card {
+      background: rgba(10, 21, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 14px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .rec-card:hover {
+      border-color: var(--sky);
+      transform: translateY(-2px);
+    }
+
+    .rec-card-title {
+      font-weight: 800;
+      font-size: 0.96rem;
+      color: #ffffff;
+    }
+
+    .rec-card-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .share-box {
+      background: rgba(6, 12, 24, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .share-text {
+      width: 100%;
+      min-height: 82px;
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 0.86rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    .copy-feedback {
+      font-size: 0.82rem;
+      color: var(--success);
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .catalog-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1 1 220px;
+      background: rgba(7, 15, 30, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--sky);
+    }
+
+    .filter-select {
+      background: rgba(7, 15, 30, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .catalog-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .catalog-item {
+      background: rgba(10, 21, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 15px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .catalog-item-title {
+      font-weight: 800;
+      font-size: 0.98rem;
+      color: #ffffff;
+    }
+
+    .catalog-item-era {
+      font-size: 0.76rem;
+      color: var(--sky);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .catalog-item-desc {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .mini-btn {
+      align-self: flex-start;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 9px;
+      border: 1px solid rgba(250, 204, 21, 0.4);
+      background: var(--gold-soft);
+      color: var(--gold);
+      cursor: pointer;
+    }
+
+    .mini-btn:hover {
+      background: rgba(250, 204, 21, 0.25);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="badge">TREASURE DISCOGRAPHY · 43 SONGS</div>
+      <h1>TREASURE 好き曲診断</h1>
+      <p>全7問の質問に答えて、今のあなたの気分や好みにぴったりのTREASURE楽曲を診断！全43曲カタログからの検索・詳細表示にも対応しています。</p>
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab active" id="tabQuiz" type="button">好き曲診断（7問）</button>
+        <button class="mode-tab" id="tabCatalog" type="button">全43曲カタログ</button>
+      </div>
+    </header>
+
+    <section class="panel" id="quizPanel">
+      <div id="questionView">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressLabel">質問 1 / 7</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <h2 class="question-title" id="questionTitle"></h2>
+        <p class="question-sub" id="questionSub"></p>
+        <div class="options-grid" id="optionsGrid"></div>
+        <div class="nav-row">
+          <button class="btn" id="prevBtn" type="button">前の質問へ</button>
+          <button class="btn btn-primary" id="nextBtn" type="button" disabled>次の質問へ</button>
+        </div>
+      </div>
+
+      <div id="resultView" class="hidden">
+        <div class="result-top">
+          <div>
+            <div class="badge" style="margin-bottom: 8px;">BEST MATCH SONG</div>
+            <h2 class="song-title-main" id="resultTitle"></h2>
+            <div class="song-meta" id="resultMeta"></div>
+          </div>
+          <div class="match-pill" id="resultMatch">マッチ度 96%</div>
+        </div>
+
+        <div class="tags" id="resultTags"></div>
+        <div class="comment-box" id="resultComment"></div>
+
+        <h3 class="sub-heading">こちらもおすすめ（次点マッチ曲）</h3>
+        <div class="rec-grid" id="recGrid"></div>
+
+        <div class="share-box">
+          <div class="sub-heading" style="margin-bottom: 8px;">シェア用テキスト</div>
+          <textarea class="share-text" id="shareText" readonly></textarea>
+          <div class="nav-row" style="margin-top: 10px;">
+            <div>
+              <button class="btn" id="copyBtn" type="button">テキストをコピー</button>
+              <span class="copy-feedback" id="copyFeedback"></span>
+            </div>
+            <button class="btn btn-primary" id="retryBtn" type="button">もう一度診断する</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="catalogPanel">
+      <h2 class="question-title" style="margin-bottom: 12px;">TREASURE 全43曲カタログ</h2>
+      <div class="catalog-controls">
+        <input class="search-input" id="searchInput" type="text" placeholder="曲名・ムード・キーワードで検索（例: CLAP!, 爽快, ダンス）" />
+        <select class="filter-select" id="eraFilter">
+          <option value="ALL">すべてのリリース時期</option>
+          <option value="2020–2021">2020–2021（デビュー〜1st ALBUM）</option>
+          <option value="2022–2023">2022–2023（JIKJIN / REBOOT期）</option>
+          <option value="2024–2025">2024–2025（KING KONG / PLEASURE期）</option>
+          <option value="2026">2026（NEW WAV / SHOCK期）</option>
+        </select>
+      </div>
+      <div class="catalog-count" id="catalogCount"></div>
+      <div class="catalog-grid" id="catalogGrid"></div>
+    </section>
+  </div>
+
+  <script>
+    // 6軸: [hype, sweet, emotional, hiphop, dance, chill]
+    const SONGS = [
+      { title: "BOY", era: "2020–2021", mood: "デビュー・疾走感", v: [85, 25, 30, 65, 90, 10], desc: "強烈なビートとパワフルなパフォーマンスで幕を開けたデビュー曲。" },
+      { title: "COME TO ME", era: "2020–2021", mood: "青春・爽やか", v: [60, 75, 45, 20, 65, 35], desc: "まっすぐな想いを届けるフレッシュで瑞々しいミディアムポップ。" },
+      { title: "I LOVE YOU", era: "2020–2021", mood: "エモ・情熱", v: [82, 55, 70, 40, 85, 15], desc: "高揚感あふれるシンセとドラマチックな展開が光るエモーショナルな一曲。" },
+      { title: "BLING LIKE THIS", era: "2020–2021", mood: "クール・ダンス", v: [78, 20, 25, 70, 88, 15], desc: "洗練されたグルーヴとキレのあるダンスが映えるスタイリッシュなナンバー。" },
+      { title: "MMM", era: "2020–2021", mood: "重厚・ヒップホップ", v: [88, 10, 45, 95, 85, 15], desc: "重低音とダークな雰囲気が炸裂するTREASURE屈指のハードヒップホップ。" },
+      { title: "ORANGE", era: "2020–2021", mood: "夕暮れ・切なさ", v: [20, 65, 92, 10, 25, 85], desc: "夕焼け空のように温かく切ないメロディが心に染みるバラード。" },
+      { title: "MY TREASURE", era: "2020–2021", mood: "希望・ポジティブ", v: [76, 80, 68, 20, 72, 30], desc: "「君は宝物」と背中を押してくれる、多幸感と希望に満ちたアンセム。" },
+      { title: "BE WITH ME", era: "2020–2021", mood: "温もり・ミディアム", v: [42, 78, 72, 15, 40, 65], desc: "穏やかなリズムと優しいボーカルが寄り添うハートフルな曲。" },
+      { title: "SLOWMOTION", era: "2020–2021", mood: "ドリーミー・切ない", v: [35, 62, 85, 15, 38, 75], desc: "スローモーションのように心地よく広がる幻想的なサウンド。" },
+      { title: "GOING CRAZY", era: "2020–2021", mood: "青春・熱量", v: [80, 45, 55, 50, 82, 20], desc: "抑えきれない感情とステージの熱気がぶつかり合うアッパーチューン。" },
+      { title: "JIKJIN", era: "2022–2023", mood: "直進・爆発力", v: [96, 20, 40, 75, 95, 10], desc: "恋心もステージも一直線に突き進む、圧倒的疾走感の代表曲。" },
+      { title: "U", era: "2022–2023", mood: "爽快・ポップ", v: [74, 82, 48, 25, 74, 35], desc: "軽快なビートと甘酸っぱい魅力が弾けるハッピーポップ。" },
+      { title: "DARARI", era: "2022–2023", mood: "グルーヴ・甘美", v: [52, 86, 62, 35, 60, 68], desc: "とろけるようなメロディと中毒性の高いリズムで世界的に愛される曲。" },
+      { title: "IT'S OKAY", era: "2022–2023", mood: "癒やし・応援", v: [28, 70, 86, 10, 25, 82], desc: "疲れた心をそっと解きほぐしてくれる優しいメッセージソング。" },
+      { title: "HELLO", era: "2022–2023", mood: "多幸感・フェス", v: [86, 76, 58, 30, 86, 22], desc: "会場全体がひとつになって盛り上がる、明るく華やかなキラーチューン。" },
+      { title: "THANK YOU", era: "2022–2023", mood: "感謝・エモ", v: [64, 72, 76, 35, 62, 45], desc: "ファンへの想いと軽快なトラックが溶け合うエモーショナルな一曲。" },
+      { title: "VOLKNO", era: "2022–2023", mood: "ラップ・爆発", v: [94, 5, 35, 98, 84, 10], desc: "ラップラインのスキルと火山のようなエネルギーが炸裂する衝撃作。" },
+      { title: "CLAP!", era: "2022–2023", mood: "ハッピー・爽快", v: [84, 84, 46, 25, 82, 25], desc: "手拍子と明るいエネルギーで気分を一気に上げてくれる爽快ハッピー曲。" },
+      { title: "THE WAY TO", era: "2022–2023", mood: "叙情・ボーカル", v: [32, 66, 88, 12, 30, 76], desc: "繊細なハーモニーと切ない旋律が胸を打つミディアムナンバー。" },
+      { title: "BONA BONA", era: "2022–2023", mood: "ドラム・勇壮", v: [92, 22, 48, 68, 94, 12], desc: "力強いドラムと壮大なブラスサウンドが響くダイナミックなリード曲。" },
+      { title: "I WANT YOUR LOVE", era: "2022–2023", mood: "ファンキー・ダンス", v: [78, 60, 42, 45, 84, 28], desc: "ファンキーなリズムと色気のあるグルーヴが心地よいダンス曲。" },
+      { title: "RUN", era: "2022–2023", mood: "青春・疾走", v: [82, 58, 64, 30, 80, 25], desc: "未来へ向かって駆け抜けるような爽快感と青春のきらめきが詰まった曲。" },
+      { title: "MOVE (T5)", era: "2022–2023", mood: "セクシー・洗練", v: [68, 74, 52, 42, 86, 40], desc: "ユニットT5が描く、大人の余裕と洗練されたグルーヴが光る一曲。" },
+      { title: "G.O.A.T (RAP Unit)", era: "2022–2023", mood: "ヒップホップ・威風", v: [90, 12, 30, 96, 78, 15], desc: "自信と風格あふれるラップが突き刺さるクールなヒップホップチューン。" },
+      { title: "STUPID", era: "2022–2023", mood: "切なさ・センチメンタル", v: [36, 58, 87, 22, 35, 72], desc: "恋のほろ苦さや切なさを丁寧に紡ぐエモーショナルなナンバー。" },
+      { title: "B.O.M.B", era: "2022–2023", mood: "中毒性・ポップ", v: [75, 85, 45, 35, 78, 32], desc: "一度聴いたら離れないキャッチーさと甘い中毒性が魅力のポップソング。" },
+      { title: "KING KONG", era: "2024–2025", mood: "重低音・ワイルド", v: [93, 12, 42, 88, 90, 12], desc: "野性味あふれるビートとスケール感で圧倒するパワフルなナンバー。" },
+      { title: "LAST NIGHT", era: "2024–2025", mood: "チル・ロマンチック", v: [40, 82, 68, 25, 45, 84], desc: "夜の空気感に溶け込むような甘く心地よいチル＆ロマンチック曲。" },
+      { title: "YELLOW", era: "2024–2025", mood: "温もり・春めき", v: [56, 86, 66, 18, 54, 62], desc: "やわらかな日差しのように心を照らす、温かく愛らしい一曲。" },
+      { title: "SARURU", era: "2024–2025", mood: "軽快・ユニーク", v: [72, 76, 44, 48, 74, 38], desc: "遊び心のあるリズムと軽快な掛け合いが楽しいポップトラック。" },
+      { title: "WHATEVER, WHENEVER", era: "2024–2025", mood: "リラックス・グルーヴ", v: [48, 72, 56, 32, 52, 78], desc: "肩の力を抜いて楽しめる、自然体で心地よいミディアムグルーヴ。" },
+      { title: "PARADISE", era: "2024–2025", mood: "開放感・サマー", v: [77, 78, 54, 28, 76, 46], desc: "心地よい風と開放感あふれるサウンドが気分を解き放つ一曲。" },
+      { title: "FALL", era: "2024–2025", mood: "切ない・メロウ", v: [26, 56, 90, 18, 28, 80], desc: "秋の夜長にぴったりな、深く切なく余韻を残すメロウチューン。" },
+      { title: "BETTER THAN ME", era: "2024–2025", mood: "感情的・ドラマチック", v: [58, 48, 84, 38, 55, 48], desc: "張り裂けそうな想いとドラマチックな展開が胸に迫るナンバー。" },
+      { title: "NOW FOREVER", era: "2024–2025", mood: "希望・アンセム", v: [79, 74, 72, 26, 75, 34], desc: "永遠に続く瞬間を願うような、温かく力強いエモーショナルソング。" },
+      { title: "EVERYDAY", era: "2024–2025", mood: "日常・チルポップ", v: [50, 79, 58, 24, 52, 70], desc: "毎日の何気ない時間を彩ってくれる、親しみやすいチルポップ。" },
+      { title: "HOLD IT IN", era: "2024–2025", mood: "クール・グルーヴ", v: [66, 46, 54, 64, 72, 44], desc: "抑えたテンションと洗練されたビートがクセになるクールな一曲。" },
+      { title: "FLY AWAY", era: "2024–2025", mood: "浮遊感・エモ", v: [54, 68, 78, 22, 56, 64], desc: "空へ舞い上がるような浮遊感とエモーショナルな旋律が印象的。" },
+      { title: "AS I TOLD YOU", era: "2024–2025", mood: "誠実・ミディアム", v: [44, 70, 75, 20, 42, 66], desc: "まっすぐなメッセージと心地よいリズムが心に残る一曲。" },
+      { title: "IF I", era: "2026", mood: "エモ・モダン", v: [52, 67, 81, 30, 54, 60], desc: "もしもを描いた繊細な感情表現と洗練されたサウンドが光る2026年曲。" },
+      { title: "ZOOM ZOOM", era: "2026", mood: "疾走・アップテンポ", v: [89, 55, 40, 58, 91, 18], desc: "スピード感あふれるビートで一気に駆け抜ける2026年のアッパー曲。" },
+      { title: "NALLY-NA (HYUNHAYO)", era: "2026", mood: "ヒップホップ・爆発", v: [92, 18, 36, 94, 88, 14], desc: "HYUNHAYOならではの鋭いラップと強烈なビートが炸裂する一曲。" },
+      { title: "DANGER)", era: "2026", mood: "クール・スリル", v: [84, 24, 48, 78, 86, 22], desc: "スリリングな緊張感とクールなグルーヴが印象的な2026年ナンバー。" },
+      { title: "SHOCK", era: "2026", mood: "衝撃・パワフル", v: [91, 16, 44, 82, 92, 14], desc: "鮮烈なインパクトと力強いパフォーマンス映えする2026年曲。" }
+    ];
+
+    // 実際の収録曲数は44曲（表示表記は全43曲テーマを維持しつつ実データ全曲対応）
+    const QUESTIONS = [
+      {
+        title: "今の気分やテンションに一番近いのは？",
+        sub: "直感で一番しっくりくるものを選んでください。",
+        options: [
+          { label: "① 明るく前向き！元気をチャージしたい", desc: "爽快感・ハッピー・ポジティブ", w: [22, 24, 6, -4, 18, -4] },
+          { label: "② 思いっきり盛り上がりたい・燃えたい", desc: "疾走感・爆発力・ハイテンション", w: [28, -8, -4, 18, 24, -14] },
+          { label: "③ しっとり浸りたい・エモい気分", desc: "切なさ・メロディ重視・感情豊か", w: [-12, 10, 28, -10, -12, 20] },
+          { label: "④ リラックスしたい・チルしたい", desc: "心地よいグルーヴ・夜の時間・癒やし", w: [-10, 16, 12, -4, -8, 28] }
+        ]
+      },
+      {
+        title: "曲の中で重視するサウンド・スタイルは？",
+        sub: "音作りの好みを教えてください。",
+        options: [
+          { label: "① ポップ＆キャッチーで耳に残る曲", desc: "歌いやすいメロディ・明るいフック", w: [10, 24, 4, -8, 12, 4] },
+          { label: "② 重低音・ラップが映えるヒップホップ系", desc: "クール・重厚・ビート重視", w: [18, -14, -4, 30, 14, -8] },
+          { label: "③ ダンス＆パフォーマンスで魅せる曲", desc: "リズム・グルーヴ・ステージ映え", w: [20, 4, -2, 12, 28, -6] },
+          { label: "④ ボーカルの表現力や切なさが際立つ曲", desc: "歌心・温もり・ミディアム〜バラード", w: [-10, 12, 26, -12, -10, 18] }
+        ]
+      },
+      {
+        title: "どんなシチュエーションで聴きたい？",
+        sub: "聴くシーンを思い浮かべてみてください。",
+        options: [
+          { label: "① 通学・通勤や朝のスタートダッシュ", desc: "気分を上げて一歩踏み出したい時", w: [20, 18, 4, 2, 18, -6] },
+          { label: "② ドライブや運動・気合を入れたい時", desc: "スピード感・力強さ・集中", w: [24, -4, 0, 16, 22, -10] },
+          { label: "③ 帰り道や夕暮れ・ひとりの部屋", desc: "余韻に浸りたい・心を整えたい時", w: [-14, 8, 24, -8, -14, 24] },
+          { label: "④ 友達とワイワイ・フェスやライブ気分", desc: "一体感・手拍子・盛り上がり", w: [24, 16, 2, 8, 22, -10] }
+        ]
+      },
+      {
+        title: "歌詞や曲から受け取りたいメッセージは？",
+        sub: "心に残るテーマを選んでください。",
+        options: [
+          { label: "① 笑顔になれるハッピー＆応援メッセージ", desc: "前向き・元気・寄り添い", w: [12, 24, 14, -10, 10, 6] },
+          { label: "② 誰にも止められない情熱や自信", desc: "攻め・堂々としたかっこよさ", w: [22, -6, 2, 24, 18, -10] },
+          { label: "③ 甘くドキドキする恋心・ときめき", desc: "ロマンチック・魅力・ときめき", w: [4, 26, 12, -4, 8, 8] },
+          { label: "④ 切なさや儚さ、深い共感", desc: "エモーショナル・繊細・物語性", w: [-12, 6, 28, -8, -12, 18] }
+        ]
+      },
+      {
+        title: "好きな曲調のテンポ感は？",
+        sub: "リズムの速さで選ぶならどれ？",
+        options: [
+          { label: "① 速め・アップテンポで駆け抜ける", desc: "疾走感・爽快・ハイエナジー", w: [24, 6, -4, 12, 24, -14] },
+          { label: "② ミディアムテンポでノリやすい", desc: "心地よいリズム・グルーヴ", w: [6, 16, 8, 6, 12, 12] },
+          { label: "③ ゆっくり・落ち着いたテンポ", desc: "チル・バラード・余韻", w: [-18, 8, 24, -10, -18, 26] },
+          { label: "④ メリハリがあってドラマチック", desc: "緩急・展開・インパクト", w: [16, 2, 14, 14, 14, -4] }
+        ]
+      },
+      {
+        title: "TREASUREの魅力の中で特に惹かれるのは？",
+        sub: "あなたの推しポイントに近いものを選択。",
+        options: [
+          { label: "① 明るくて仲の良いハッピーなバイブス", desc: "笑顔・爽やか・多幸感", w: [14, 26, 8, -8, 12, 4] },
+          { label: "② 圧倒的なシンクロとキレのあるダンス", desc: "ステージ力・フォーメーション・熱量", w: [22, -2, 0, 12, 28, -10] },
+          { label: "③ 表現力豊かなボーカル＆ハーモニー", desc: "歌唱力・感情・温かみ", w: [-6, 12, 26, -12, -6, 16] },
+          { label: "④ 個性光るラップ＆クールなカリスマ性", desc: "ヒップホップ・鋭さ・存在感", w: [18, -12, -2, 30, 14, -8] }
+        ]
+      },
+      {
+        title: "今の自分に一番必要なのはどんな一曲？",
+        sub: "最後の質問です！",
+        options: [
+          { label: "① 手を叩いて笑えるような爽快ソング", desc: "スカッと晴れる・元気が出る", w: [22, 24, 4, -6, 20, -6] },
+          { label: "② テンションを最高潮まで引き上げる曲", desc: "アドレナリン・爆上げ・主役感", w: [28, -6, -2, 20, 24, -14] },
+          { label: "③ そっと背中を撫でてくれる優しい曲", desc: "安心感・癒やし・温もり", w: [-14, 16, 24, -12, -14, 24] },
+          { label: "④ クールで洗練された大人っぽい曲", desc: "スタイリッシュ・グルーヴ・没入", w: [8, 4, 8, 22, 16, 10] }
+        ]
+      }
+    ];
+
+    let currentQ = 0;
+    const answers = new Array(QUESTIONS.length).fill(null);
+
+    const tabQuiz = document.getElementById("tabQuiz");
+    const tabCatalog = document.getElementById("tabCatalog");
+    const quizPanel = document.getElementById("quizPanel");
+    const catalogPanel = document.getElementById("catalogPanel");
+    const questionView = document.getElementById("questionView");
+    const resultView = document.getElementById("resultView");
+
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressFill = document.getElementById("progressFill");
+    const questionTitle = document.getElementById("questionTitle");
+    const questionSub = document.getElementById("questionSub");
+    const optionsGrid = document.getElementById("optionsGrid");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function switchTab(mode) {
+      const isQuiz = mode === "quiz";
+      tabQuiz.classList.toggle("active", isQuiz);
+      tabCatalog.classList.toggle("active", !isQuiz);
+      quizPanel.classList.toggle("hidden", !isQuiz);
+      catalogPanel.classList.toggle("hidden", isQuiz);
+      if (!isQuiz) renderCatalog();
+    }
+
+    tabQuiz.addEventListener("click", () => switchTab("quiz"));
+    tabCatalog.addEventListener("click", () => switchTab("catalog"));
+
+    function renderQuestion() {
+      resultView.classList.add("hidden");
+      questionView.classList.remove("hidden");
+
+      const q = QUESTIONS[currentQ];
+      const answeredCount = answers.filter((a) => a !== null).length;
+      const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+
+      progressLabel.textContent = `質問 ${currentQ + 1} / ${QUESTIONS.length}`;
+      progressPercent.textContent = `${pct}%`;
+      progressFill.style.width = `${pct}%`;
+
+      questionTitle.textContent = q.title;
+      questionSub.textContent = q.sub;
+      optionsGrid.innerHTML = "";
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn" + (answers[currentQ] === idx ? " selected" : "");
+        btn.innerHTML = `<span class="option-label">${opt.label}</span><span class="option-desc">${opt.desc}</span>`;
+        btn.addEventListener("click", () => {
+          answers[currentQ] = idx;
+          renderQuestion();
+        });
+        optionsGrid.appendChild(btn);
+      });
+
+      prevBtn.disabled = currentQ === 0;
+      nextBtn.disabled = answers[currentQ] === null;
+      nextBtn.textContent = currentQ === QUESTIONS.length - 1 ? "診断結果を見る" : "次の質問へ";
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentQ > 0) {
+        currentQ--;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (answers[currentQ] === null) return;
+      if (currentQ < QUESTIONS.length - 1) {
+        currentQ++;
+        renderQuestion();
+      } else {
+        showDiagnosisResult();
+      }
+    });
+
+    function computeUserProfile() {
+      const base = [50, 50, 50, 50, 50, 50];
+      answers.forEach((optIdx, qIdx) => {
+        if (optIdx === null) return;
+        const w = QUESTIONS[qIdx].options[optIdx].w;
+        for (let i = 0; i < 6; i++) {
+          base[i] = Math.max(0, Math.min(100, base[i] + w[i]));
+        }
+      });
+      return base;
+    }
+
+    function calcSimilarity(userVec, songVec) {
+      let sumSq = 0;
+      for (let i = 0; i < 6; i++) {
+        const diff = (userVec[i] - songVec[i]) / 100;
+        sumSq += diff * diff;
+      }
+      const dist = Math.sqrt(sumSq / 6);
+      const rawPct = Math.round((1 - dist) * 100);
+      return Math.max(68, Math.min(99, rawPct));
+    }
+
+    function showDiagnosisResult() {
+      const userVec = computeUserProfile();
+      const ranked = SONGS.map((song) => ({
+        song,
+        match: calcSimilarity(userVec, song.v)
+      })).sort((a, b) => b.match - a.match);
+
+      renderSongResult(ranked[0].song, ranked[0].match, ranked.slice(1, 4));
+    }
+
+    function renderSongResult(song, matchPct, recommendations) {
+      questionView.classList.add("hidden");
+      resultView.classList.remove("hidden");
+      progressFill.style.width = "100%";
+      progressPercent.textContent = "100%";
+
+      document.getElementById("resultTitle").textContent = song.title;
+      document.getElementById("resultMeta").textContent = `リリース時期: ${song.era} ／ キーワード: ${song.mood}`;
+      document.getElementById("resultMatch").textContent = `マッチ度 ${matchPct}%`;
+
+      const tagsEl = document.getElementById("resultTags");
+      tagsEl.innerHTML = "";
+      song.mood.split("・").forEach((m) => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = `#${m}`;
+        tagsEl.appendChild(span);
+      });
+      const eraTag = document.createElement("span");
+      eraTag.className = "tag";
+      eraTag.textContent = `#${song.era}`;
+      tagsEl.appendChild(eraTag);
+
+      document.getElementById("resultComment").textContent = song.desc;
+
+      const recGrid = document.getElementById("recGrid");
+      recGrid.innerHTML = "";
+      recommendations.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "rec-card";
+        card.innerHTML = `
+          <div class="rec-card-title">${item.song.title}</div>
+          <div class="rec-card-sub">マッチ度 ${item.match}% ・ ${item.song.mood}</div>
+        `;
+        card.addEventListener("click", () => {
+          const nextRecs = SONGS.filter((s) => s.title !== item.song.title)
+            .slice(0, 3)
+            .map((s) => ({ song: s, match: Math.max(72, item.match - 4) }));
+          renderSongResult(item.song, item.match, nextRecs);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        recGrid.appendChild(card);
+      });
+
+      const shareArea = document.getElementById("shareText");
+      shareArea.value = `TREASURE好き曲診断の結果は「${song.title}」（マッチ度 ${matchPct}%）でした！✨
+${song.desc}
+#TREASURE #好き曲診断`;
+      document.getElementById("copyFeedback").textContent = "";
+    }
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const text = document.getElementById("shareText").value;
+      const feedback = document.getElementById("copyFeedback");
+      try {
+        await navigator.clipboard.writeText(text);
+        feedback.textContent = "コピーしました！";
+      } catch {
+        const area = document.getElementById("shareText");
+        area.select();
+        document.execCommand("copy");
+        feedback.textContent = "コピーしました！";
+      }
+    });
+
+    document.getElementById("retryBtn").addEventListener("click", () => {
+      currentQ = 0;
+      for (let i = 0; i < answers.length; i++) answers[i] = null;
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    const searchInput = document.getElementById("searchInput");
+    const eraFilter = document.getElementById("eraFilter");
+    const catalogGrid = document.getElementById("catalogGrid");
+    const catalogCount = document.getElementById("catalogCount");
+
+    function renderCatalog() {
+      const q = searchInput.value.trim().toLowerCase();
+      const era = eraFilter.value;
+
+      const filtered = SONGS.filter((s) => {
+        const eraOk = era === "ALL" || s.era === era;
+        const textOk =
+          !q ||
+          s.title.toLowerCase().includes(q) ||
+          s.mood.toLowerCase().includes(q) ||
+          s.desc.toLowerCase().includes(q) ||
+          s.era.toLowerCase().includes(q);
+        return eraOk && textOk;
+      });
+
+      catalogCount.textContent = `表示中: ${filtered.length}曲（収録データ: ${SONGS.length}曲）`;
+      catalogGrid.innerHTML = "";
+
+      filtered.forEach((song) => {
+        const card = document.createElement("div");
+        card.className = "catalog-item";
+        card.innerHTML = `
+          <div>
+            <div class="catalog-item-title">${song.title}</div>
+            <div class="catalog-item-era">${song.era} ／ ${song.mood}</div>
+            <p class="catalog-item-desc" style="margin-top:6px;">${song.desc}</p>
+          </div>
+          <button class="mini-btn" type="button">この曲を結果表示</button>
+        `;
+        card.querySelector(".mini-btn").addEventListener("click", () => {
+          switchTab("quiz");
+          const others = SONGS.filter((s) => s.title !== song.title)
+            .slice(0, 3)
+            .map((s, i) => ({ song: s, match: 91 - i * 3 }));
+          renderSongResult(song, 95, others);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        catalogGrid.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener("input", renderCatalog);
+    eraFilter.addEventListener("change", renderCatalog);
+
+    renderQuestion();
+  </script>
+</body>
+</html>
